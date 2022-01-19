@@ -1,7 +1,5 @@
 //! 配置
 
-use std::path::Path;
-
 use serde::Deserialize;
 
 /// web 配置
@@ -24,7 +22,7 @@ impl Config {
     /// 从环境变量中初始化配置
     pub fn from_env() -> Result<Self, config::ConfigError> {
         let mut cfg = config::Config::new();
-        cfg.merge(config::File::from(Path::new("env.json")))?;
+        cfg.merge(config::Environment::new())?;
         cfg.try_into()
     }
 }
