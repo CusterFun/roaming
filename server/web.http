@@ -1,0 +1,12 @@
+### 初始化数据库
+POST http://127.0.0.1:9527/initdb
+Content-Type: application/json
+
+{
+    "dbtype":   "mysql",
+    "host":     "127.0.0.1",
+    "port":     "3306",
+    "username": "root",
+    "password": "root1234",
+    "db_name":  "test"
+}

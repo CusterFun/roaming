@@ -1,7 +1,7 @@
 use axum::{http::StatusCode, routing::get_service, Router};
 use tower_http::services::ServeDir;
 
-use server::config;
+use server::{config, handler};
 
 #[tokio::main]
 async fn main() {
@@ -18,7 +18,10 @@ async fn main() {
         )
     });
 
-    let app = Router::new().nest("/static", static_serve);
+    let api_router = handler::routers();
+    let app = Router::new()
+        .nest("/", api_router)
+        .nest("/static", static_serve);
 
     axum::Server::bind(&cfg.web.addr.parse().unwrap())
         .serve(app.into_make_service())
