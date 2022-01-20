@@ -1,6 +1,9 @@
+use diesel::MysqlConnection;
+use diesel::r2d2::ConnectionManager;
 use crate::model::sys_initdb::InitDB;
 use mysql::prelude::*;
 use mysql::*;
+use crate::model;
 
 pub fn initdb(conf: InitDB) {
     if conf.dbtype.to_lowercase() == "mysql" {
@@ -26,5 +29,13 @@ fn init_mysql(mut conf: InitDB) {
         .unwrap();
     }
 
+    let mysql_config = conf.to_mysql_config();
+
     // 建立数据库连接池
+    let _pool = get_mysql_pool(mysql_config.dsn());
+}
+
+fn get_mysql_pool(database_url: String) -> model::Pool {
+    let manager = ConnectionManager::<MysqlConnection>::new(database_url);
+    r2d2::Pool::builder().build(manager).expect("创建连接池失败")
 }
