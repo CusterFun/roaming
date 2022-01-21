@@ -1,4 +1,3 @@
-use crate::config::MySQLConfig;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -21,20 +20,25 @@ impl InitDB {
             self.port = "3306".to_string();
         }
         format!(
-            "mysql://{}:{}@{}:{}",
-            self.username, self.password, self.host, self.port
+            "{}://{}:{}@{}:{}",
+            self.dbtype.to_lowercase(),
+            self.username,
+            self.password,
+            self.host,
+            self.port
         )
     }
 
     /// 转换为 mysql 的配置信息
-    pub fn to_mysql_config(self) -> MySQLConfig {
-        MySQLConfig {
-            path: self.host,
-            port: self.port,
-            dbname: self.db_name,
-            username: self.username,
-            password: self.password,
-            config: "charset=utf8mb4&parseTime=True&loc=Local".to_string(),
-        }
+    pub fn database_url(self) -> String {
+        format!(
+            "{}://{}:{}@{}:{}/{}",
+            self.dbtype.to_lowercase(),
+            self.username,
+            self.password,
+            self.host,
+            self.port,
+            self.db_name
+        )
     }
 }
