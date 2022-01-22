@@ -10,6 +10,7 @@ anyhow = "1" # 错误处理
 thiserror = "1" # 错误定义和处理
 
 axum = "0.4"
+futures = "0.3"
 serde = {version = "1", features = ["derive"]}# 序列化/反序列化数据  
 serde_json = "1"
 tokio = {version = "1", features = ["full"]}
@@ -17,11 +18,10 @@ tower-http = {version = "0.2", features = ["add-extension", "trace", "fs"]}
 
 config = "0.11" 
 dotenv = "0.15" 
+lazy_static = "1" # 通过宏更方便地初始化静态变量
 tracing = "0.1" # 日志处理
 tracing-subscriber = "0.3" # 日志和追踪
-lazy_static = "1" # 通过宏更方便地初始化静态变量
 
-mysql = "21"
-r2d2 = "0.8"
 chrono = {version = "0.4", features = ["serde"]}
-diesel = {version = "1.4", features = ["mysql", "r2d2", "serde_json", "extras", "chrono", "uuid"]}
+mysql = "21"
+sqlx = {version = "0.5", features = ["runtime-tokio-native-tls", "mysql"]}

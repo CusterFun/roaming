@@ -19,6 +19,10 @@ GET /autoCode/getDB
 }
 ```
 
+```sql
+SELECT SCHEMA_NAME AS `database` FROM INFORMATION_SCHEMA.SCHEMATA;
+```
+
 2. 通过数据库名获取表名
 
 ```
@@ -41,6 +45,10 @@ GET /autoCode/getTables?dbName=test
 }
 ```
 
+```sql
+select table_name as table_name from information_schema.tables where table_schema = "task";
+```
+
 3. 通过数据库名和表名获取字段
 
 ```
@@ -60,6 +68,25 @@ GET /autoCode/getColumn?dbName=music&tableName=cs_lessons
     },
     "msg":"获取成功"
 }
+```
+
+```sql
+SELECT COLUMN_NAME        column_name,
+       DATA_TYPE          data_type,
+       CASE DATA_TYPE
+           WHEN 'longtext' THEN c.CHARACTER_MAXIMUM_LENGTH
+           WHEN 'varchar' THEN c.CHARACTER_MAXIMUM_LENGTH
+           WHEN 'double' THEN CONCAT_WS(',', c.NUMERIC_PRECISION, c.NUMERIC_SCALE)
+           WHEN 'decimal' THEN CONCAT_WS(',', c.NUMERIC_PRECISION, c.NUMERIC_SCALE)
+           WHEN 'int' THEN c.NUMERIC_PRECISION
+           WHEN 'bigint' THEN c.NUMERIC_PRECISION
+           ELSE '' END AS data_type_long,
+       COLUMN_COMMENT     column_comment
+	FROM INFORMATION_SCHEMA.COLUMNS c
+	WHERE table_name = "business"
+	  AND table_schema = "task";
+
+SELECT COLUMN_NAME, DATA_TYPE, COLUMN_KEY, IS_NULLABLE, COLUMN_TYPE, COLUMN_COMMENT FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = "task" AND TABLE_NAME = "business";
 ```
 
 4. 预览自动生成代码
