@@ -10,3 +10,7 @@ Content-Type: application/json
     "password": "root1234",
     "db_name":  "test"
 }
+
+### 获取数据库名
+GET http://127.0.0.1:9527/autoCode/getDB
+Content-Type: application/json
