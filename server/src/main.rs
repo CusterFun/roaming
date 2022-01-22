@@ -1,7 +1,17 @@
-use axum::{http::StatusCode, routing::get_service, Router};
+use std::sync::Arc;
+
+use axum::{
+    http::StatusCode,
+    routing::{get_service, post},
+    AddExtensionLayer, Router,
+};
 use tower_http::services::ServeDir;
 
-use server::{config, handler};
+use server::{
+    config,
+    handler::{self, sys_initdb},
+    model,
+};
 
 #[tokio::main]
 async fn main() {
@@ -9,7 +19,10 @@ async fn main() {
 
     dotenv::dotenv().ok();
     let cfg = config::Config::from_env().unwrap();
+    let pool = model::create_mysql_pool();
     tracing::info!("Web 服务监听于: {}", &cfg.web.addr);
+
+    let state = Arc::new(model::AppState { pool });
 
     let static_serve = get_service(ServeDir::new("static")).handle_error(|err| async move {
         (
@@ -21,7 +34,9 @@ async fn main() {
     let api_router = handler::routers();
     let app = Router::new()
         .nest("/", api_router)
-        .nest("/static", static_serve);
+        .nest("/static", static_serve)
+        .layer(AddExtensionLayer::new(state))
+        .route("/initdb", post(sys_initdb::initdb));
 
     axum::Server::bind(&cfg.web.addr.parse().unwrap())
         .serve(app.into_make_service())

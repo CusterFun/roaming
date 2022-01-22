@@ -1,12 +1,7 @@
-use axum::{
-    routing::{get, post},
-    Router,
-};
+use axum::{routing::get, Router};
 
 pub mod sys_initdb;
 
 pub fn routers() -> Router {
-    Router::new()
-        .route("/", get(sys_initdb::str_response))
-        .route("/initdb", post(sys_initdb::initdb))
+    Router::new().route("/", get(sys_initdb::str_response))
 }
