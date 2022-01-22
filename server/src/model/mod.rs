@@ -1,3 +1,4 @@
+use anyhow::Result;
 use diesel::r2d2::ConnectionManager;
 use diesel::MysqlConnection;
 
@@ -10,10 +11,10 @@ pub struct AppState {
 }
 
 /// 建立数据库连接池
-pub fn create_mysql_pool() -> Pool {
-    let database_url = std::env::var("DATABASE_URL").expect(".env 文件没有配置 DATABASE_URL");
+pub fn create_mysql_pool() -> Result<Pool> {
+    let database_url = std::env::var("DATABASE_URL")?;
     let manager = ConnectionManager::<MysqlConnection>::new(database_url);
-    r2d2::Pool::builder()
+    Ok(r2d2::Pool::builder()
         .build(manager)
-        .expect("创建连接池失败")
+        .expect("创建连接池失败"))
 }

@@ -43,6 +43,5 @@ fn write_mysql_config(database_url: String) {
         .expect("打开.env文件失败");
     file.write_all(database_url.as_bytes())
         .expect("写入.env文件失败");
-    println!("database_url写入.env文件成功");
+    tracing::info!("DATABASE_URL 写入 .env 文件成功, 请重启服务器！");
 }
-
