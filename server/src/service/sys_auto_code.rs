@@ -3,7 +3,7 @@ use sqlx::{FromRow, MySqlPool};
 
 use crate::error::AppResult;
 
-#[derive(Debug, Serialize, Deserialize, FromRow)]
+#[derive(Debug, Default, Serialize, Deserialize, FromRow)]
 pub struct Db {
     pub database: String,
 }
