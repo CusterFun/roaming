@@ -14,3 +14,9 @@ pub async fn get_db(Extension(state): Extension<Arc<AppState>>) -> ApiResult<Jso
     let res = ApiResp::<Vec<sys_auto_code::Db>>::ok_with_data(db);
     Ok(Json(json!(res)))
 }
+
+pub async fn get_tables(Extension(state): Extension<Arc<AppState>>) -> ApiResult<Json<Value>> {
+    let tables = sys_auto_code::get_tables(&state.pool).await?;
+    let res = ApiResp::<Vec<sys_auto_code::Table>>::ok_with_data(tables);
+    Ok(Json(json!(res)))
+}

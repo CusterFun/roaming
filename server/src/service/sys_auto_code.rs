@@ -23,3 +23,34 @@ pub async fn get_db(pool: &MySqlPool) -> AppResult<Vec<Db>> {
         })
         .collect())
 }
+
+#[derive(FromRow, Serialize)]
+pub struct Table {
+    pub table_name: String,
+}
+
+pub async fn get_tables(pool: &MySqlPool) -> AppResult<Vec<Table>> {
+    let database_url = std::env::var("DATABASE_URL").unwrap();
+    let dbname = database_url.split('/').last().unwrap();
+    dbg!(dbname);
+    let recs = sqlx::query!(
+        r#"
+        SELECT table_name 
+        FROM INFORMATION_SCHEMA.TABLES 
+        WHERE table_schema = ?
+        "#,
+        dbname
+    )
+    .fetch_all(pool)
+    .await?;
+
+    for rec in &recs {
+        println!("{:?}", rec);
+    }
+    Ok(recs
+        .into_iter()
+        .map(|rec| Table {
+            table_name: rec.TABLE_NAME.unwrap_or_default(),
+        })
+        .collect())
+}
