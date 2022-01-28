@@ -16,5 +16,10 @@ GET http://127.0.0.1:9527/autoCode/getDB
 Content-Type: application/json
 
 ### 获取对应数据库的表
-GET http://127.0.0.1:9527/autoCode/getTables
+GET http://127.0.0.1:9527/autoCode/getTables?db_name=world
+Content-Type: application/json
+
+
+### 获取指定表所有字段信息
+GET http://127.0.0.1:9527/autoCode/getColumn?db_name=demo&table_name=test
 Content-Type: application/json
