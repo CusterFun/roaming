@@ -1,4 +1,4 @@
-### 初始化数据库
+### 1. 初始化数据库
 POST http://127.0.0.1:9527/initdb
 Content-Type: application/json
 
@@ -11,20 +11,20 @@ Content-Type: application/json
     "db_name":  "test"
 }
 
-### 获取数据库名
+### 2. 获取数据库名
 GET http://127.0.0.1:9527/autoCode/getDB
 Content-Type: application/json
 
-### 获取对应数据库的表
+### 3. 获取对应数据库的表
 GET http://127.0.0.1:9527/autoCode/getTables?db_name=world
 Content-Type: application/json
 
 
-### 获取指定表所有字段信息
+### 4. 获取指定表所有字段信息
 GET http://127.0.0.1:9527/autoCode/getColumn?db_name=demo&table_name=test
 Content-Type: application/json
 
-### 预览创建代码
+### 5. 预览创建代码
 POST http://127.0.0.1:9527/autoCode/preview
 Content-Type: application/json
 

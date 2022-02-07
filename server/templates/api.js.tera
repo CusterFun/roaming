@@ -1,0 +1,17 @@
+import service from '@/utils/request'
+
+// @Tags {{auto_code.struct_name}}
+// @Summary 创建{{auto_code.struct_name}}
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body model.{{auto_code.struct_name}} true "创建{{auto_code.struct_name}}"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /{{auto_code.abbreviation}}/create{{auto_code.struct_name}} [post]
+export const create{{auto_code.struct_name}} = (data) => {
+  return service({
+    url: '/{{auto_code.abbreviation}}/create{{auto_code.struct_name}}',
+    method: 'post',
+    data
+  })
+}

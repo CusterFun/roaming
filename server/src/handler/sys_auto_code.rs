@@ -1,10 +1,10 @@
-use std::sync::Arc;
+use std::{sync::Arc, collections::HashMap};
 
 use axum::{
     extract::{Extension, Query},
     Json,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 use crate::{
@@ -50,7 +50,7 @@ pub async fn get_column(
     Ok(Json(json!(res)))
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct AutoCodeStruct {
     pub struct_name: String,               // Struct 名称
     pub table_name: String,                // 表名称
@@ -63,7 +63,7 @@ pub struct AutoCodeStruct {
     pub dict_types: Option<Vec<String>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct AutoCodeField {
     pub field_name: String,        // 字段名称
     pub field_desc: String,        // 中文名
@@ -81,5 +81,6 @@ pub async fn preview_temp(
     Json(req): Json<AutoCodeStruct>,
 ) -> Json<Value> {
     let auto_code = sys_auto_code::preview_temp(&state.pool, req).await;
-    Json(json!({"res": "ok"}))
+    let res = ApiResp::<HashMap<String, String>>::ok_with_data(auto_code.ok().unwrap());
+    Json(json!(res))
 }

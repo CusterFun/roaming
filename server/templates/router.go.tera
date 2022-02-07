@@ -1,0 +1,27 @@
+package autocode
+
+import (
+	"github.com/flipped-aurora/gin-vue-admin/server/api/v1"
+	"github.com/flipped-aurora/gin-vue-admin/server/middleware"
+	"github.com/gin-gonic/gin"
+)
+
+type {{auto_code.struct_name}}Router struct {
+}
+
+// Init{{auto_code.struct_name}}Router 初始化 {{auto_code.struct_name}} 路由信息
+func (s *{{auto_code.struct_name}}Router) Init{{auto_code.struct_name}}Router(Router *gin.RouterGroup) {
+	{{auto_code.abbreviation}}Router := Router.Group("{{auto_code.abbreviation}}").Use(middleware.OperationRecord())
+	{{auto_code.abbreviation}}RouterWithoutRecord := Router.Group("{{auto_code.abbreviation}}")
+	var {{auto_code.abbreviation}}Api = v1.ApiGroupApp.AutoCodeApiGroup.{{auto_code.struct_name}}Api
+	{
+		{{auto_code.abbreviation}}Router.POST("create{{auto_code.struct_name}}", {{auto_code.abbreviation}}Api.Create{{auto_code.struct_name}})   // 新建{{auto_code.struct_name}}
+		{{auto_code.abbreviation}}Router.DELETE("delete{{auto_code.struct_name}}", {{auto_code.abbreviation}}Api.Delete{{auto_code.struct_name}}) // 删除{{auto_code.struct_name}}
+		{{auto_code.abbreviation}}Router.DELETE("delete{{auto_code.struct_name}}ByIds", {{auto_code.abbreviation}}Api.Delete{{auto_code.struct_name}}ByIds) // 批量删除{{auto_code.struct_name}}
+		{{auto_code.abbreviation}}Router.PUT("update{{auto_code.struct_name}}", {{auto_code.abbreviation}}Api.Update{{auto_code.struct_name}})    // 更新{{auto_code.struct_name}}
+	}
+	{
+		{{auto_code.abbreviation}}RouterWithoutRecord.GET("find{{auto_code.struct_name}}", {{auto_code.abbreviation}}Api.Find{{auto_code.struct_name}})        // 根据ID获取{{auto_code.struct_name}}
+		{{auto_code.abbreviation}}RouterWithoutRecord.GET("get{{auto_code.struct_name}}List", {{auto_code.abbreviation}}Api.Get{{auto_code.struct_name}}List)  // 获取{{auto_code.struct_name}}列表
+	}
+}

@@ -1,3 +1,5 @@
+use std::io;
+
 use axum::{http::StatusCode, Json};
 use serde_json::{json, Value};
 use thiserror::Error;
@@ -7,6 +9,10 @@ use thiserror::Error;
 pub enum AppError {
     #[error(transparent)]
     SqlxError(#[from] sqlx::Error),
+    #[error(transparent)]
+    TeraError(#[from] tera::Error),
+    #[error(transparent)]
+    IoError(#[from] io::Error),
 }
 
 pub type ApiError = (StatusCode, Json<Value>); // Api 格式的错误

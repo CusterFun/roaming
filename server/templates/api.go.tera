@@ -1,0 +1,37 @@
+package autocode
+
+import (
+    "github.com/flipped-aurora/gin-vue-admin/server/global"
+    "github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
+    "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+    autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
+    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+    "github.com/flipped-aurora/gin-vue-admin/server/service"
+    "github.com/gin-gonic/gin"
+    "go.uber.org/zap"
+)
+
+type {{auto_code.struct_name}}Api struct {}
+
+var {{auto_code.abbreviation}}Service = service.ServiceGroupApp.AutoCodeServiceGroup.{{auto_code.struct_name}}Service
+
+
+// Create{{auto_code.struct_name}} 创建{{auto_code.struct_name}}
+// @Tags {{auto_code.struct_name}}
+// @Summary 创建{{auto_code.struct_name}}
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data body autocode.{{auto_code.struct_name}} true "创建{{auto_code.struct_name}}"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
+// @Router /{{auto_code.abbreviation}}/create{{auto_code.struct_name}} [post]
+func ({{auto_code.abbreviation}}Api *{{auto_code.struct_name}}Api) Create{{auto_code.struct_name}}(c *gin.Context) {
+    var {{auto_code.abbreviation}} autocode.{{auto_code.struct_name}}
+    _ = c.ShouldBindJSON(&{{auto_code.abbreviation}})
+    if err := {{auto_code.abbreviation}}Service.Create{{auto_code.struct_name}}({{auto_code.abbreviation}}); err != nil {
+        global.GVA_LOG.Error("创建失败!", zap.Error(err))
+        response.FailWithMessage("创建失败", c)
+    } else {
+        response.OkWithMessage("创建成功", c)
+    }
+}

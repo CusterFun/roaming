@@ -1,7 +1,8 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fs, io};
 
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, MySqlPool};
+use tera::{Context, Tera};
 
 use crate::{error::AppResult, handler::sys_auto_code::AutoCodeStruct};
 
@@ -101,48 +102,50 @@ pub async fn get_column(
         .collect())
 }
 
-pub async fn preview_temp(pool: &MySqlPool, mut auto_code: AutoCodeStruct) -> AppResult<()> {
-    make_dict_types(&mut auto_code);
+const BASE_PATH: &str = "templates";
 
-    let (data_list, file_list, need_mkdir) = get_need_list(&auto_code);
+pub async fn preview_temp(
+    _pool: &MySqlPool,
+    auto_code: AutoCodeStruct,
+) -> AppResult<HashMap<String, String>> {
+    let templates = Tera::new("templates/**/*").expect("Tera 模板引擎初始化失败!");
+    let mut ctx = Context::new();
+    ctx.insert("auto_code", &auto_code);
 
-    Ok(())
+    let mut ret = HashMap::new();
+
+    // 获取文件夹下所有 .tera 文件
+    let tpl_file_list = get_all_tpl_file(BASE_PATH, &mut vec![]).unwrap_or_default();
+    tracing::info!("{:?}", tpl_file_list);
+
+    // TODO:
+    // 1. 子文件夹下的模板文件没有办法解析
+    // 2. 新建文件夹以及迁移文件
+    // 3. 使用用户新建的模板文件
+    // 4. 使用云仓库中开源的模板文件
+    for tpl in tpl_file_list {
+        let render = templates.render(tpl.as_str(), &ctx).expect("渲染模板失败!");
+        ret.insert(tpl.strip_suffix(".tera").unwrap().to_string(), render);
+    }
+
+    Ok(ret)
 }
 
-#[derive(Serialize)]
-pub struct TplData {
-    // pub template: Template,
-    pub location_path: String,
-    pub auto_code_path: String,
-    pub auto_move_file_path: String,
-}
-
-pub const BASE_PATH: &str = "resource/template";
-
-fn get_need_list(auto_code: &AutoCodeStruct) -> (Vec<TplData>, Vec<String>, Vec<String>) {
-    // 获取 basePath 文件夹下所有 tpl 文件
-    let tpl_file_list = get_all_tpl_file(BASE_PATH);
-
-    (vec![], vec![], vec![])
-}
-
-/// 获取 pathName 文件夹下所有 tpl 文件
-fn get_all_tpl_file(base_path: &'static str) -> Vec<String> {
-    
-}
-
-fn make_dict_types(auto_code: &mut AutoCodeStruct) {
-    let mut dict_type_m = HashMap::new();
-    for v in &auto_code.fields {
-        if !v.dict_type.is_empty() {
-            dict_type_m.insert(v.dict_type.clone(), "");
+fn get_all_tpl_file(base_path: &str, file_list: &mut Vec<String>) -> AppResult<Vec<String>> {
+    let entries = fs::read_dir(base_path)?
+        .map(|res| res.map(|e| e.path()))
+        .collect::<Result<Vec<_>, io::Error>>()?;
+    for file in entries.iter() {
+        let file_name = file
+            .file_name()
+            .unwrap_or_default()
+            .to_str()
+            .unwrap_or_default();
+        if file.is_dir() {
+            return get_all_tpl_file(&(base_path.to_owned() + "/" + file_name), file_list);
+        } else if file_name.ends_with(".tera") {
+            file_list.push(file_name.to_string());
         }
     }
-
-    let mut vec = vec![];
-    for (k, _) in dict_type_m {
-        println!("{}", k);
-        vec.push(k);
-    }
-    auto_code.dict_types = Some(vec);
+    Ok(file_list.to_vec())
 }
