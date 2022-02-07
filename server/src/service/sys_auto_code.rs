@@ -1,7 +1,9 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, MySqlPool};
 
-use crate::error::AppResult;
+use crate::{error::AppResult, handler::sys_auto_code::AutoCodeStruct};
 
 #[derive(Debug, Default, Serialize, Deserialize, FromRow)]
 pub struct Db {
@@ -97,4 +99,50 @@ pub async fn get_column(
             column_comment: rec.column_comment,
         })
         .collect())
+}
+
+pub async fn preview_temp(pool: &MySqlPool, mut auto_code: AutoCodeStruct) -> AppResult<()> {
+    make_dict_types(&mut auto_code);
+
+    let (data_list, file_list, need_mkdir) = get_need_list(&auto_code);
+
+    Ok(())
+}
+
+#[derive(Serialize)]
+pub struct TplData {
+    // pub template: Template,
+    pub location_path: String,
+    pub auto_code_path: String,
+    pub auto_move_file_path: String,
+}
+
+pub const BASE_PATH: &str = "resource/template";
+
+fn get_need_list(auto_code: &AutoCodeStruct) -> (Vec<TplData>, Vec<String>, Vec<String>) {
+    // 获取 basePath 文件夹下所有 tpl 文件
+    let tpl_file_list = get_all_tpl_file(BASE_PATH);
+
+    (vec![], vec![], vec![])
+}
+
+/// 获取 pathName 文件夹下所有 tpl 文件
+fn get_all_tpl_file(base_path: &'static str) -> Vec<String> {
+    
+}
+
+fn make_dict_types(auto_code: &mut AutoCodeStruct) {
+    let mut dict_type_m = HashMap::new();
+    for v in &auto_code.fields {
+        if !v.dict_type.is_empty() {
+            dict_type_m.insert(v.dict_type.clone(), "");
+        }
+    }
+
+    let mut vec = vec![];
+    for (k, _) in dict_type_m {
+        println!("{}", k);
+        vec.push(k);
+    }
+    auto_code.dict_types = Some(vec);
 }

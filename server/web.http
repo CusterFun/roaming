@@ -23,3 +23,32 @@ Content-Type: application/json
 ### 获取指定表所有字段信息
 GET http://127.0.0.1:9527/autoCode/getColumn?db_name=demo&table_name=test
 Content-Type: application/json
+
+### 预览创建代码
+POST http://127.0.0.1:9527/autoCode/preview
+Content-Type: application/json
+
+{
+  "struct_name":"Test",
+  "table_name":"test",
+  "package_name":"test",
+  "abbreviation":"test",
+  "description":"test表",
+  "auto_create_api_to_sql":true,
+  "auto_move_file":false,
+  "fields":[
+    {
+      "field_name":"Barcode",
+      "field_desc":"barcode字段",
+      "field_type":"string",
+      "data_type":"text",
+      "field_json":"barcode",
+      "data_type_long":"",
+      "column_name":"barcode",
+      "comment":"",
+      "field_search_type":"",
+      "dict_type":""
+    }
+  ],
+  "hump_package_name":"test"
+}

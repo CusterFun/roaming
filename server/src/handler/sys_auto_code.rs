@@ -49,3 +49,37 @@ pub async fn get_column(
     let res = ApiResp::<Vec<sys_auto_code::Column>>::ok_with_data(tables);
     Ok(Json(json!(res)))
 }
+
+#[derive(Deserialize, Debug)]
+pub struct AutoCodeStruct {
+    pub struct_name: String,               // Struct 名称
+    pub table_name: String,                // 表名称
+    pub package_name: String,              // 文件名称
+    pub home_package_name: Option<String>, // go 文件名称
+    pub abbreviation: String,              // Strut 简称
+    pub auto_create_api_to_sql: bool,      // 是否自动创建 api
+    pub auto_move_file: bool,              // 是否自动移动文件
+    pub fields: Vec<AutoCodeField>,
+    pub dict_types: Option<Vec<String>>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct AutoCodeField {
+    pub field_name: String,        // 字段名称
+    pub field_desc: String,        // 中文名
+    pub field_type: String,        // 字段数据类型
+    pub field_json: String,        // 字段 json 名称
+    pub data_type_long: String,    // 数据库字段长度
+    pub comment: String,           // 数据库字段描述
+    pub column_name: String,       // 数据库字段
+    pub field_search_type: String, // 搜索条件
+    pub dict_type: String,         // 字典
+}
+
+pub async fn preview_temp(
+    Extension(state): Extension<Arc<AppState>>,
+    Json(req): Json<AutoCodeStruct>,
+) -> Json<Value> {
+    let auto_code = sys_auto_code::preview_temp(&state.pool, req).await;
+    Json(json!({"res": "ok"}))
+}
