@@ -128,7 +128,14 @@ pub async fn preview_temp(
     for tpl in tpl_file_list {
         let path = path_list.get(&tpl);
         if let Some(value) = path {
-            let render = templates.render(value, &ctx).expect("渲染模板失败!");
+            let mut render = templates.render(value, &ctx).expect("渲染模板失败!");
+
+            let mut language: String = "txt".to_owned();
+            let split: Vec<&str> = tpl.split('.').collect();
+            if split.len() > 2 && split.contains(&"tera") {
+                language = split[1].trim().to_string();
+            }
+            render = format!("```{}\n\n{}\n\n\n```", language, render);
             ret.insert(tpl.strip_suffix(".tera").unwrap().to_string(), render);
         };
     }
