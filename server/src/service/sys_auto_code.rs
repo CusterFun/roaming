@@ -113,10 +113,13 @@ pub async fn preview_temp(
     ctx.insert("auto_code", &auto_code);
 
     let mut ret = HashMap::new();
+    let mut path_list: HashMap<String, String> = HashMap::new();
 
     // 获取文件夹下所有 .tera 文件
-    let tpl_file_list = get_all_tpl_file(BASE_PATH, &mut vec![]).unwrap_or_default();
-    tracing::info!("{:?}", tpl_file_list);
+    let tpl_file_list =
+        get_all_tpl_file(BASE_PATH, &mut vec![], &mut path_list).unwrap_or_default();
+    tracing::info!("tpl_file_list: {:?}", tpl_file_list);
+    tracing::info!("path_list: {:?}", path_list);
 
     // TODO:
     // 1. 子文件夹下的模板文件没有办法解析
@@ -124,27 +127,53 @@ pub async fn preview_temp(
     // 3. 使用用户新建的模板文件
     // 4. 使用云仓库中开源的模板文件
     for tpl in tpl_file_list {
-        let render = templates.render(tpl.as_str(), &ctx).expect("渲染模板失败!");
-        ret.insert(tpl.strip_suffix(".tera").unwrap().to_string(), render);
+        let path = path_list.get(&tpl);
+        if let Some(value) = path {
+            let render = templates.render(value, &ctx).expect("渲染模板失败!");
+            ret.insert(tpl.strip_suffix(".tera").unwrap().to_string(), render);
+        };
     }
 
     Ok(ret)
 }
 
-fn get_all_tpl_file(base_path: &str, file_list: &mut Vec<String>) -> AppResult<Vec<String>> {
+fn get_all_tpl_file(
+    base_path: &str,
+    file_list: &mut Vec<String>,
+    path_list: &mut HashMap<String, String>,
+) -> AppResult<Vec<String>> {
     let entries = fs::read_dir(base_path)?
         .map(|res| res.map(|e| e.path()))
         .collect::<Result<Vec<_>, io::Error>>()?;
+    dbg!("{}", &entries);
     for file in entries.iter() {
+        dbg!("{}", file);
+
         let file_name = file
             .file_name()
             .unwrap_or_default()
             .to_str()
             .unwrap_or_default();
+
+        dbg!("{}", file_name);
+
         if file.is_dir() {
-            return get_all_tpl_file(&(base_path.to_owned() + "/" + file_name), file_list);
+            return get_all_tpl_file(
+                &(base_path.to_owned() + "/" + file_name),
+                file_list,
+                path_list,
+            );
         } else if file_name.ends_with(".tera") {
             file_list.push(file_name.to_string());
+            path_list.insert(
+                file_name.to_string(),
+                file.to_str()
+                    .unwrap_or_default()
+                    .to_string()
+                    .strip_prefix(format!("{}/", BASE_PATH).as_str())
+                    .unwrap_or_default()
+                    .to_string(),
+            );
         }
     }
     Ok(file_list.to_vec())
