@@ -122,7 +122,6 @@ pub async fn preview_temp(
     tracing::info!("path_list: {:?}", path_list);
 
     // TODO:
-    // 1. 子文件夹下的模板文件没有办法解析
     // 2. 新建文件夹以及迁移文件
     // 3. 使用用户新建的模板文件
     // 4. 使用云仓库中开源的模板文件
@@ -145,24 +144,20 @@ fn get_all_tpl_file(
     let entries = fs::read_dir(base_path)?
         .map(|res| res.map(|e| e.path()))
         .collect::<Result<Vec<_>, io::Error>>()?;
-    dbg!("{}", &entries);
-    for file in entries.iter() {
-        dbg!("{}", file);
 
+    for file in entries.iter() {
         let file_name = file
             .file_name()
             .unwrap_or_default()
             .to_str()
             .unwrap_or_default();
 
-        dbg!("{}", file_name);
-
         if file.is_dir() {
-            return get_all_tpl_file(
+            get_all_tpl_file(
                 &(base_path.to_owned() + "/" + file_name),
                 file_list,
                 path_list,
-            );
+            )?;
         } else if file_name.ends_with(".tera") {
             file_list.push(file_name.to_string());
             path_list.insert(
