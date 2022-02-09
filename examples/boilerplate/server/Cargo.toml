@@ -1,0 +1,52 @@
+[package]
+edition = "2021"
+name = "server"
+version = "0.1.0"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# axum
+async-trait = "0.1"
+axum = "0.4"
+futures = "0.3"
+headers = "0.3"
+http = "0.2"
+http-body = "0.4"
+tokio = {version = "1", features = ["full"]}
+tower = {version = "0.4", features = ["full"]}
+tower-http = {version = "0.2", features = ["add-extension", "compression-br", "trace"]}
+tracing = "0.1"
+tracing-subscriber = "0.3"
+
+# bytes
+bytes = "1"
+
+# jsonwebtoken
+jsonwebtoken = "8"
+
+# json
+derive_more = "0.99"
+serde = "1"
+serde_derive = "1"
+serde_json = "1"
+
+# sqlx
+sqlx = {version = "0.5", features = ["runtime-tokio-native-tls", "uuid", "json", "macros", "migrate", "mysql", "chrono", "time"]}
+
+# uuid
+uuid = {version = "0.8", features = ["serde", "v4"]}
+
+# validator 
+validator = {version = "0.14", features = ["derive"]}
+
+# chrono
+chrono = {version = "0.4", features = ["serde"]}
+
+# other
+anyhow = "1"
+config = "0.11"
+dotenv = "0.15"
+lazy_static = "1"
+tera = "1"
+thiserror = "1"

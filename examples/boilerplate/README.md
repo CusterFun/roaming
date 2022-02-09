@@ -87,6 +87,12 @@ cargo install cargo-watch
 
 > 安装依赖较多，如果时间较长，请[配置 Rust 工具链的国内源](https://rsproxy.cn)。
 
+使用 `cargo-watch` 运行项目
+
+```shell
+cargo watch -q -c -w src/ -x run
+```
+
 ### 2. Error
 
 当开始一个新的Rust项目时，做的第一件事就是创建项目的错误枚举。
@@ -96,7 +102,7 @@ cargo install cargo-watch
 也就是说，我总是创建一个Internal(String)变体来处理我不希望或无法优雅地处理的错误。
 
 ```rust
-use std::io;
+// File: src/error.rs
 
 use axum::{http::StatusCode, Json};
 use serde_json::{json, Value};
@@ -107,30 +113,128 @@ use thiserror::Error;
 pub enum AppError {
     #[error(transparent)]
     SqlxError(#[from] sqlx::Error),
-    #[error(transparent)]
-    IoError(#[from] io::Error),
     #[error("Internal error")]
-	Internal(String),
+    Internal(String),
+    #[error(transparent)]
+    ValidationError(#[from] validator::ValidationErrors),
 }
 
-pub type ApiError = (StatusCode, Json<Value>); // Api 格式的错误
-pub type ApiResult<T> = std::result::Result<T, ApiError>; // Api 格式的 Result
-pub type AppResult<T> = std::result::Result<T, AppError>; // App 内部的 Result
+/// Api 格式的错误
+pub type ApiError = (StatusCode, Json<Value>);
+/// Api 格式的 Result
+pub type ApiResult<T> = std::result::Result<T, ApiError>;
+/// App 内部的 Result
+pub type AppResult<T> = std::result::Result<T, AppError>;
 
 impl From<AppError> for ApiError {
     fn from(err: AppError) -> Self {
-        let status = StatusCode::INTERNAL_SERVER_ERROR;
+        let status = match err {
+            AppError::ValidationError(_) => StatusCode::BAD_REQUEST,
+            _ => StatusCode::INTERNAL_SERVER_ERROR,
+        };
         let payload = json!({"code": 7, "msg": err.to_string()});
         (status, Json(payload))
     }
 }
 
+impl From<sqlx::migrate::MigrateError> for AppError {
+    fn from(err: sqlx::migrate::MigrateError) -> Self {
+        AppError::Internal(err.to_string())
+    }
+}
+
+
 ```
 
+### 3. Config
+
+使用 `dotenv` 读取 `.env` 环境变量进行配置
+
+```rust
+// File: src/config.rs
+
+use serde::Deserialize;
+
+/// 配置
+#[derive(Deserialize, Debug)]
+pub struct Config {
+    pub server: ServerConfig,
+}
+
+/// 服务端配置
+#[derive(Deserialize, Debug)]
+pub struct ServerConfig {
+    /// web 服务监听地址
+    pub host: String,
+    /// web 服务监听端口
+    pub port: u16,
+    /// 安全密钥
+    pub secret_key: String,
+    /// 数据库配置
+    pub database_url: String,
+}
+
+impl Config {
+    /// 从环境变量中初始化配置
+    pub fn from_env() -> Result<Self, config::ConfigError> {
+        dotenv::dotenv().ok();
+
+        let mut cfg = config::Config::new();
+        cfg.merge(config::Environment::new())?;
+        cfg.try_into()
+    }
+}
+
+```
+
+### 4. DB
+配置数据库链接，使用 `sqlx` 链接 `mysql`
+
+```rust
+// File: src/db.rs
+
+use std::time::Duration;
+
+use sqlx::{mysql::MySqlPoolOptions, MySqlPool};
+
+/// 获取数据库连接池
+pub async fn connect(cfg: &crate::Config) -> Result<MySqlPool, crate::AppError> {
+    MySqlPoolOptions::new()
+        .max_connections(cfg.db.min_connections)
+        .min_connections(cfg.db.max_connections)
+        .max_lifetime(Duration::from_secs(30 * 60)) // 30 mins
+        .idle_timeout(Duration::from_millis(600000))
+        .connect(&cfg.db.database_url)
+        .await
+        .map_err(|err| {
+            tracing::error!("数据库链接失败! {}", err);
+            err.into()
+        })
+}
+
+/// 迁移数据库表
+pub async fn migrate(db: &MySqlPool) -> Result<(), crate::AppError> {
+    match sqlx::migrate!("db/migrations").run(db).await {
+        Ok(_) => Ok(()),
+        Err(err) => {
+            tracing::error!("db::migrate: 数据库迁移失败! {}", err);
+            Err(err)
+        }
+    }?;
+    Ok(())
+}
 
 
+```
+
+### 5. 启动服务端
+使用 axum 完成服务端代码
+
+```rust
+// File: src/main.rs
 
 
+```
 
 
 
