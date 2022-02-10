@@ -188,9 +188,15 @@ POST  /autoCode/preview
 
 ## TODO:
 
-1. 子文件夹下的模板文件没有办法解析
-2. 新建文件夹以及迁移文件
-3. 使用用户新建的模板文件
-4. 使用云仓库中开源的模板文件
-5. 学习总结使用框架的代码结构、最佳项目结构（如：[Clean and Scalable Architecture for Web lications in Rust](https://kerkour.com/rust-web-application-clean-architecture/)）
-6. 集成最小可运行程序
+- [x] 子文件夹下的模板文件没有办法解析
+- [ ] 新建文件夹以及迁移文件
+- [ ] 使用用户新建的模板文件
+- [ ] 使用云仓库中开源的模板文件
+- [ ] 学习总结使用框架的代码结构、最佳项目结构（如：[Clean and Scalable Architecture for Web lications in Rust](https://kerkour.com/rust-web-application-clean-architecture/)） 6. 集成最小可运行程序
+
+## 参考
+
+[Neil-鹏/rust-tools](https://gitee.com/shaipe/rust-tools)
+
+- coder 一个代码生成器,可以根据 mysql 的数据库表结构进行代码生成
+- rust2sql: 提取 Rust 语言中的 struct 结构生成 sql 语句 --example
