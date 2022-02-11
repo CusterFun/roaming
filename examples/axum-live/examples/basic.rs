@@ -1,19 +1,26 @@
-use std::net::SocketAddr;
+use std::{
+    net::SocketAddr,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc, RwLock,
+    },
+};
 
 use axum::{
     async_trait,
-    extract::{FromRequest, RequestParts, TypedHeader},
+    extract::{Extension, FromRequest, RequestParts, TypedHeader},
     headers::{authorization::Bearer, Authorization},
     http::StatusCode,
     response::{Html, IntoResponse},
     routing::{get, post},
-    Json, Router, Server,
+    AddExtensionLayer, Json, Router, Server,
 };
 use jsonwebtoken as jwt;
 use jwt::Validation;
 use serde::{Deserialize, Serialize};
 
 const SECRET: &[u8] = b"deadbeef";
+static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Todo {
@@ -42,13 +49,26 @@ struct LoginResponse {
 struct Claims {
     id: usize,
     name: String,
+    exp: usize,
+}
+
+#[derive(Debug, Default, Clone)]
+struct TodoStore {
+    items: Arc<RwLock<Vec<Todo>>>,
 }
 
 #[tokio::main]
 async fn main() {
+    let store = TodoStore::default();
+
     let app = Router::new()
         .route("/", get(index_handler))
-        .route("/todos", get(todos_handler).post(create_todo_handler))
+        .route(
+            "/todos",
+            get(todos_handler)
+                .post(create_todo_handler)
+                .layer(AddExtensionLayer::new(store)),
+        )
         .route("/login", post(login_handler));
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     println!("Listening on http://{}", addr);
@@ -78,9 +98,24 @@ async fn todos_handler() -> Json<Vec<Todo>> {
     ])
 }
 
-async fn create_todo_handler(claims: Claims, Json(_todo): Json<CreateTodo>) -> StatusCode {
+async fn create_todo_handler(
+    claims: Claims,
+    Json(todo): Json<CreateTodo>,
+    Extension(store): Extension<TodoStore>,
+) -> Result<StatusCode, HttpError> {
     println!("{claims:?}");
-    StatusCode::CREATED
+    match store.items.write() {
+        Ok(mut guard) => {
+            let todo = Todo {
+                id: get_next_id(),
+                title: todo.title,
+                completed: false,
+            };
+            guard.push(todo);
+            Ok(StatusCode::CREATED)
+        }
+        Err(_) => Err(HttpError::Internal),
+    }
 }
 
 async fn login_handler(Json(_login): Json<LoginRequest>) -> Json<LoginResponse> {
@@ -88,6 +123,7 @@ async fn login_handler(Json(_login): Json<LoginRequest>) -> Json<LoginResponse> 
     let claims = Claims {
         id: 1,
         name: "Custer".into(),
+        exp: get_epoch() + 14 * 24 * 60 * 60,
     };
     let key = jwt::EncodingKey::from_secret(SECRET);
     let token = jwt::encode(&jwt::Header::default(), &claims, &key).unwrap();
@@ -107,8 +143,11 @@ where
                 .await
                 .map_err(|_| HttpError::Auth)?;
         let key = jwt::DecodingKey::from_secret(SECRET);
-        let token = jwt::decode::<Claims>(bearer.token(), &key, &Validation::default())
-            .map_err(|_| HttpError::Auth)?;
+        let token =
+            jwt::decode::<Claims>(bearer.token(), &key, &Validation::default()).map_err(|e| {
+                dbg!(e);
+                HttpError::Auth
+            })?;
         Ok(token.claims)
     }
 }
@@ -127,4 +166,16 @@ impl IntoResponse for HttpError {
         };
         (code, msg).into_response()
     }
+}
+
+fn get_epoch() -> usize {
+    use std::time::SystemTime;
+    SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .unwrap()
+        .as_secs() as usize
+}
+
+fn get_next_id() -> usize {
+    NEXT_ID.fetch_add(1, Ordering::Relaxed)
 }
