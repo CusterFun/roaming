@@ -8,23 +8,26 @@ use std::{
 
 use axum::{
     async_trait,
+    body::{boxed, Full},
     extract::{Extension, FromRequest, RequestParts, TypedHeader},
     headers::{authorization::Bearer, Authorization},
-    http::StatusCode,
-    response::{Html, IntoResponse},
+    http::{header, StatusCode, Uri},
+    response::{IntoResponse, Response},
     routing::{get, post},
     AddExtensionLayer, Json, Router, Server,
 };
 use jsonwebtoken as jwt;
 use jwt::Validation;
+use rust_embed::RustEmbed;
 use serde::{Deserialize, Serialize};
 
 const SECRET: &[u8] = b"deadbeef";
 static NEXT_ID: AtomicUsize = AtomicUsize::new(1);
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Todo {
     pub id: usize,
+    pub user_id: usize,
     pub title: String,
     pub completed: bool,
 }
@@ -57,9 +60,45 @@ struct TodoStore {
     items: Arc<RwLock<Vec<Todo>>>,
 }
 
+#[derive(RustEmbed)]
+#[folder = "my-app\\build"]
+struct Assets;
+
+struct StaticFile<T>(pub T);
+
+impl<T> IntoResponse for StaticFile<T>
+where
+    T: Into<String>,
+{
+    fn into_response(self) -> Response {
+        let path = self.0.into();
+        match Assets::get(path.as_str()) {
+            Some(content) => {
+                let body = boxed(Full::from(content.data));
+                let mime = mime_guess::from_path(path.as_str()).first_or_octet_stream();
+                Response::builder()
+                    .header(header::CONTENT_TYPE, mime.as_ref())
+                    .body(body)
+                    .unwrap()
+            }
+            None => Response::builder()
+                .status(StatusCode::NOT_FOUND)
+                .body(boxed(Full::from(format!("File not found: {}", path))))
+                .unwrap(),
+        }
+    }
+}
+
 #[tokio::main]
 async fn main() {
-    let store = TodoStore::default();
+    let store = TodoStore {
+        items: Arc::new(RwLock::new(vec![Todo {
+            id: 0,
+            user_id: 0,
+            title: "Learn Rust".to_string(),
+            completed: false,
+        }])),
+    };
 
     let app = Router::new()
         .route("/", get(index_handler))
@@ -69,7 +108,8 @@ async fn main() {
                 .post(create_todo_handler)
                 .layer(AddExtensionLayer::new(store)),
         )
-        .route("/login", post(login_handler));
+        .route("/login", post(login_handler))
+        .fallback(get(static_handler));
     let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
     println!("Listening on http://{}", addr);
 
@@ -79,23 +119,31 @@ async fn main() {
         .unwrap();
 }
 
-async fn index_handler() -> Html<&'static str> {
-    Html("Hello, world!")
+async fn index_handler() -> impl IntoResponse {
+    // StaticFile("index.html")
+    static_handler("/index.html".parse().unwrap()).await
 }
 
-async fn todos_handler() -> Json<Vec<Todo>> {
-    Json(vec![
-        Todo {
-            id: 1,
-            title: "Todo 1".into(),
-            completed: false,
-        },
-        Todo {
-            id: 2,
-            title: "Todo 2".into(),
-            completed: false,
-        },
-    ])
+async fn static_handler(uri: Uri) -> impl IntoResponse {
+    let path = uri.path().trim_start_matches('/').to_string();
+    StaticFile(path)
+}
+
+async fn todos_handler(
+    claims: Claims,
+    Extension(store): Extension<TodoStore>,
+) -> Result<Json<Vec<Todo>>, HttpError> {
+    let user_id = claims.id;
+    match store.items.read() {
+        Ok(items) => Ok(Json(
+            items
+                .iter()
+                .filter(|todo| todo.user_id == user_id)
+                .cloned()
+                .collect(),
+        )),
+        Err(_) => Err(HttpError::Internal),
+    }
 }
 
 async fn create_todo_handler(
@@ -108,6 +156,7 @@ async fn create_todo_handler(
         Ok(mut guard) => {
             let todo = Todo {
                 id: get_next_id(),
+                user_id: claims.id,
                 title: todo.title,
                 completed: false,
             };
