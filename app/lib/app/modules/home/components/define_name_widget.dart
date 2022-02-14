@@ -1,4 +1,3 @@
-
 import 'package:app/flutter_flow/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:easy_debounce/easy_debounce.dart';

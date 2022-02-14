@@ -5,4 +5,3 @@ export 'flutter_flow_widgets.dart';
 export 'internationalization.dart';
 export 'lat_lng.dart';
 export 'place.dart';
-

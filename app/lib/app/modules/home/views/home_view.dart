@@ -54,22 +54,29 @@ class HomeView extends GetView<HomeController> {
                   child: Row(
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(
-                        controller.toolpick.value,
-                        style: FlutterFlowTheme.of(context).bodyText2.override(
-                              fontFamily: 'Lexend Deca',
-                              color: Color(0xFF8B97A2),
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                            ),
+                      Obx(
+                        () => Text(
+                          controller.toolpick.value,
+                          style:
+                              FlutterFlowTheme.of(context).bodyText2.override(
+                                    fontFamily: 'Lexend Deca',
+                                    color: Color(0xFF8B97A2),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                // if (controller.toolpick.value == 'connect_db')
-                  ConnectDbWidget(),
-                // if (controller.toolpick.value == 'sql_to_code')
-                  DbContainerWidget(),
+                Obx(() => Container(
+                    child: (controller.toolpick.value == 'connect_db')
+                        ? ConnectDbWidget()
+                        : null)),
+                Obx(() => Container(
+                    child: (controller.toolpick.value == 'sql_to_code')
+                        ? DbContainerWidget()
+                        : null)),
               ],
             ),
           ),

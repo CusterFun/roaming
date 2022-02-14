@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_overrides
+
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
@@ -17,4 +19,8 @@ class HomeController extends GetxController {
   @override
   void onClose() {}
   void increment() => count.value++;
+  void changetool(newValue) {
+    print("tool pick $toolpick");
+    toolpick.value = newValue;
+  }
 }

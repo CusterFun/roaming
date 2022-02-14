@@ -1,4 +1,3 @@
-
 import 'package:app/app/modules/home/controllers/home_controller.dart';
 import 'package:app/flutter_flow/index.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +39,8 @@ class _ToolBoxWidgetState extends State<ToolBoxWidget> {
                     padding: EdgeInsetsDirectional.fromSTEB(16, 0, 0, 0),
                     child: InkWell(
                       onTap: () async {
-                        setState(() => c.toolpick.value = 'connect_db');
+                        c.changetool('connect_db');
+                        // setState(() => c.toolpick.value = 'connect_db');
                       },
                       child: Material(
                         color: Colors.transparent,
@@ -98,7 +98,8 @@ class _ToolBoxWidgetState extends State<ToolBoxWidget> {
                     padding: EdgeInsetsDirectional.fromSTEB(8, 0, 0, 0),
                     child: InkWell(
                       onTap: () async {
-                        setState(() => c.toolpick.value = 'sql_to_code');
+                        c.changetool('sql_to_code');
+                        // setState(() => c.toolpick.value = 'sql_to_code');
                       },
                       child: Material(
                         color: Colors.transparent,
@@ -155,7 +156,8 @@ class _ToolBoxWidgetState extends State<ToolBoxWidget> {
                     padding: EdgeInsetsDirectional.fromSTEB(8, 0, 0, 0),
                     child: InkWell(
                       onTap: () async {
-                        setState(() => c.toolpick.value = 'select_table');
+                        c.changetool('select_table');
+                        // setState(() => c.toolpick.value = 'select_table');
                       },
                       child: Material(
                         color: Colors.transparent,
@@ -212,7 +214,8 @@ class _ToolBoxWidgetState extends State<ToolBoxWidget> {
                     padding: EdgeInsetsDirectional.fromSTEB(8, 0, 0, 0),
                     child: InkWell(
                       onTap: () async {
-                        setState(() => c.toolpick.value = 'test');
+                        c.changetool('test');
+                        // setState(() => c.toolpick.value = 'test');
                       },
                       child: Material(
                         color: Colors.transparent,
