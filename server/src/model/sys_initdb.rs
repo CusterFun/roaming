@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone, Default)]
 pub struct InitDB {
     pub dbtype: String,   // 数据库类型
     pub host: String,     // 服务器地址

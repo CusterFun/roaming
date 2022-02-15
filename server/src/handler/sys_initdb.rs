@@ -10,7 +10,7 @@ pub async fn str_response() -> &'static str {
 }
 
 pub async fn initdb(Json(req): Json<InitDB>) -> ApiResult<Json<Value>> {
-    sys_initdb::initdb(req)?;
-    let res:ApiResp<String> = ApiResp::ok_with_msg("initdb success".to_string());
+    sys_initdb::initdb(req.clone())?;
+    let res:ApiResp<InitDB> = ApiResp::ok_with_detailed(req,"initdb success".to_string());
     Ok(Json(json!(res)))
 }
