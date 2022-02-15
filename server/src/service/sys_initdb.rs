@@ -2,20 +2,22 @@ use crate::model::sys_initdb::InitDB;
 
 use mysql::prelude::*;
 use mysql::*;
+use crate::error::AppResult;
 
-pub fn initdb(conf: InitDB) {
+pub fn initdb(conf: InitDB) -> AppResult<()> {
     if conf.dbtype.to_lowercase() == "mysql" {
-        init_mysql(conf);
-    }
+        init_mysql(conf)?;
+    };
+    Ok(())
 }
 
 /// 初始化 mysql 数据库
-fn init_mysql(mut conf: InitDB) {
+fn init_mysql(mut conf: InitDB) -> AppResult<()> {
     let dsn = conf.mysql_empty_dsn();
 
     // 创建数据库
-    let opts = Opts::from_url(&dsn).unwrap();
-    let mut conn = mysql::Conn::new(opts).unwrap();
+    let opts = Opts::from_url(&dsn)?;
+    let mut conn = mysql::Conn::new(opts)?;
     if conn
         .query::<mysql::Row, _>(format!("USE {}", conf.db_name))
         .is_err()
@@ -31,6 +33,7 @@ fn init_mysql(mut conf: InitDB) {
     let database_url = format!("\nDATABASE_URL={}\n", mysql_config);
 
     write_mysql_config(database_url);
+    Ok(())
 }
 
 /// 写入配置文件

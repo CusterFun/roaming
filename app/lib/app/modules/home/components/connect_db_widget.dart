@@ -1,5 +1,8 @@
+import 'package:app/api.dart';
 import 'package:app/flutter_flow/index.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ConnectDbWidget extends StatefulWidget {
   const ConnectDbWidget({Key? key}) : super(key: key);
@@ -29,7 +32,7 @@ class _ConnectDbWidgetState extends State<ConnectDbWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.5,
+      height: MediaQuery.of(context).size.height * 0.7,
       decoration: BoxDecoration(
         color: Color(0xFFEEEEEE),
         // image: DecorationImage(
@@ -291,7 +294,7 @@ class _ConnectDbWidgetState extends State<ConnectDbWidget> {
                   children: [
                     FFButtonWidget(
                       onPressed: () {
-                        print('Button pressed ...');
+                        initdb();
                       },
                       text: '保存配置',
                       options: FFButtonOptions(
@@ -321,5 +324,29 @@ class _ConnectDbWidgetState extends State<ConnectDbWidget> {
         ),
       ),
     );
+  }
+
+  Future initdb() async {
+    try {
+      var host = databaseUrlController.text.split(':')[0];
+      var port = databaseUrlController.text.split(':')[1];
+      print('url: ${Api.INIT_DB}, host:$host, port:$port');
+      var res = await Dio().post(Api.INIT_DB, data: {
+        "dbtype":   "mysql",
+        "host":     host,
+        "port":     port,
+        "username": userController.text,
+        "password": passwordController.text,
+        "db_name":  dbnameController.text,
+      });
+      Get.snackbar('提示', res.data['msg']);
+      if (res.statusCode == 200) {
+        print('res : ${res.data}');
+      } else {
+        throw Exception('后端接口出现异常');
+      }
+    } catch (e) {
+      return print('ERROR:===>${e}');
+    }
   }
 }

@@ -13,6 +13,10 @@ pub enum AppError {
     TeraError(#[from] tera::Error),
     #[error(transparent)]
     IoError(#[from] io::Error),
+    #[error(transparent)]
+    MySQLError(#[from] mysql::Error),
+    #[error(transparent)]
+    MySQLUrlError(#[from] mysql::UrlError),
 }
 
 pub type ApiError = (StatusCode, Json<Value>); // Api 格式的错误
@@ -21,7 +25,7 @@ pub type AppResult<T> = std::result::Result<T, AppError>; // App 内部的 Resul
 
 impl From<AppError> for ApiError {
     fn from(err: AppError) -> Self {
-        let status = StatusCode::INTERNAL_SERVER_ERROR;
+        let status = StatusCode::OK;
         let payload = json!({"code": 7, "msg": err.to_string()});
         (status, Json(payload))
     }
