@@ -8,11 +8,12 @@ import '../model/dbtables.dart';
 
 class SqlToCodeController extends GetxController {
   final count = 0.obs;
-  final List<String> dbnames = [];
-  List<String> tables = [];
-  final getTableDisabled = true.obs;
-  final dbname = ''.obs;
-  final table = ''.obs;
+  final List<String> dbnames = []; // 数据库名的数组
+  List<String> tables = []; // 表名的数组
+  final getTableDisabled = true.obs; // 未选择数据库不能选择表
+  final dbname = ''.obs; // 选择的数据库名
+  final table = ''.obs; // 选择的表名
+  final structName = ''.obs; // 使用此表创建时的表名
 
   @override
   void onInit() {
@@ -67,10 +68,7 @@ class SqlToCodeController extends GetxController {
 
   /// 获取指定表所有字段信息
   void getColumns() async {
-    if (dbname.value == '' || table.value == '') {
-      Get.snackbar('提示', '请选择数据库和表名');
-      return;
-    }
+    structName.value = table.value;
     try {
       var res = await Dio().get(Api.GET_COLUMNS, queryParameters: {
         'db_name': dbname.value,

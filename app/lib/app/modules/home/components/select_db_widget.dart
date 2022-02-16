@@ -101,9 +101,8 @@ class _SelectDbWidgetState extends State<SelectDbWidget> {
                 ),
               ),
               FFButtonWidget(
-                onPressed: () {
-                  c.getColumns();
-                },
+                disabled: c.dbname.value == '' || c.table.value == '',
+                onPressed: c.getColumns,
                 text: '使用此表创建',
                 options: FFButtonOptions(
                   width: 130,
@@ -118,6 +117,7 @@ class _SelectDbWidgetState extends State<SelectDbWidget> {
                     width: 1,
                   ),
                   borderRadius: 12,
+                  disabledColor: Colors.grey,
                 ),
               ),
             ],

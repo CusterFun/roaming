@@ -1,8 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class FFButtonOptions {
   const FFButtonOptions({
@@ -47,6 +47,7 @@ class FFButtonWidget extends StatefulWidget {
     this.iconData,
     required this.options,
     this.showLoadingIndicator = true,
+    this.disabled = false,
   }) : super(key: key);
 
   final String text;
@@ -55,6 +56,7 @@ class FFButtonWidget extends StatefulWidget {
   final Function() onPressed;
   final FFButtonOptions options;
   final bool showLoadingIndicator;
+  final bool disabled;
 
   @override
   State<FFButtonWidget> createState() => _FFButtonWidgetState();
@@ -116,7 +118,7 @@ class _FFButtonWidgetState extends State<FFButtonWidget> {
                 ),
           ),
           label: textWidget,
-          onPressed: onPressed,
+          onPressed: widget.disabled ? null : onPressed,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(widget.options.borderRadius!),
             side: widget.options.borderSide ?? BorderSide.none,
@@ -137,7 +139,7 @@ class _FFButtonWidgetState extends State<FFButtonWidget> {
       height: widget.options.height,
       width: widget.options.width,
       child: RaisedButton(
-        onPressed: onPressed,
+        onPressed: widget.disabled ? null : onPressed,
         shape: RoundedRectangleBorder(
           borderRadius:
               BorderRadius.circular(widget.options.borderRadius ?? 28),
