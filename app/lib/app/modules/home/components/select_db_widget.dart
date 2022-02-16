@@ -1,6 +1,9 @@
 import 'package:app/flutter_flow/index.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+
+import '../controllers/sql_to_code_controller.dart';
 
 class SelectDbWidget extends StatefulWidget {
   const SelectDbWidget({Key? key}) : super(key: key);
@@ -10,6 +13,8 @@ class SelectDbWidget extends StatefulWidget {
 }
 
 class _SelectDbWidgetState extends State<SelectDbWidget> {
+  SqlToCodeController c = Get.find();
+
   String? dropDownValue1;
   String? dropDownValue2;
 
@@ -33,7 +38,8 @@ class _SelectDbWidgetState extends State<SelectDbWidget> {
                     style: FlutterFlowTheme.of(context).bodyText1,
                   ),
                   FlutterFlowDropDown(
-                    options: ['test', 'mysql'].toList(),
+                    options: c.dbnames,
+                    initialOption: '请选择数据库',
                     onChanged: (val) => setState(() => dropDownValue1 = val),
                     width: 180,
                     height: 50,
@@ -66,7 +72,9 @@ class _SelectDbWidgetState extends State<SelectDbWidget> {
                     style: FlutterFlowTheme.of(context).bodyText1,
                   ),
                   FlutterFlowDropDown(
+                    disabled: true,
                     options: ['Option 1'].toList(),
+                    initialOption: '请选择表',
                     onChanged: (val) => setState(() => dropDownValue2 = val),
                     width: 180,
                     height: 50,

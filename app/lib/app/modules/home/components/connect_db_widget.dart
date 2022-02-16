@@ -1,4 +1,5 @@
 import 'package:app/api.dart';
+import 'package:app/app/modules/home/controllers/home_controller.dart';
 import 'package:app/flutter_flow/index.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -17,6 +18,8 @@ class _ConnectDbWidgetState extends State<ConnectDbWidget> {
   late TextEditingController passwordController;
   late bool passwordVisibility;
   late TextEditingController dbnameController;
+
+  final HomeController c = Get.find();
 
   @override
   void initState() {
@@ -332,21 +335,23 @@ class _ConnectDbWidgetState extends State<ConnectDbWidget> {
       var port = databaseUrlController.text.split(':')[1];
       print('url: ${Api.INIT_DB}, host:$host, port:$port');
       var res = await Dio().post(Api.INIT_DB, data: {
-        "dbtype":   "mysql",
-        "host":     host,
-        "port":     port,
+        "dbtype": "mysql",
+        "host": host,
+        "port": port,
         "username": userController.text,
         "password": passwordController.text,
-        "db_name":  dbnameController.text,
+        "db_name": dbnameController.text,
       });
       Get.snackbar('提示', res.data['msg']);
-      if (res.statusCode == 200) {
+      if (res.data['code'] == 0) {
+        // todo: 持久化存储
         print('res : ${res.data}');
+        c.changetool('sql_to_code');
       } else {
         throw Exception('后端接口出现异常');
       }
     } catch (e) {
-      return print('ERROR:===>${e}');
+      return print('ERROR:===>$e');
     }
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class FlutterFlowDropDown extends StatefulWidget {
   const FlutterFlowDropDown({
-    this.initialOption,
+    required this.initialOption,
     this.hintText,
     required this.options,
     required this.onChanged,
@@ -17,9 +17,10 @@ class FlutterFlowDropDown extends StatefulWidget {
     this.borderColor,
     this.margin,
     this.hidesUnderline = false,
+    this.disabled = false,
   });
 
-  final String? initialOption;
+  final String initialOption;
   final String? hintText;
   final List<String> options;
   final Function(String) onChanged;
@@ -34,6 +35,7 @@ class FlutterFlowDropDown extends StatefulWidget {
   final Color? borderColor;
   final EdgeInsetsGeometry? margin;
   final bool hidesUnderline;
+  final bool disabled;
 
   @override
   State<FlutterFlowDropDown> createState() => _FlutterFlowDropDownState();
@@ -47,7 +49,7 @@ class _FlutterFlowDropDownState extends State<FlutterFlowDropDown> {
   @override
   void initState() {
     super.initState();
-    dropDownValue = widget.initialOption!;
+    dropDownValue = widget.initialOption;
   }
 
   @override
@@ -57,15 +59,17 @@ class _FlutterFlowDropDownState extends State<FlutterFlowDropDown> {
       hint: widget.hintText != null
           ? Text(widget.hintText!, style: widget.textStyle)
           : null,
-      items: effectiveOptions
-          .map((e) => DropdownMenuItem(
-                value: e,
-                child: Text(
-                  e,
-                  style: widget.textStyle,
-                ),
-              ))
-          .toList(),
+      items: widget.disabled
+          ? null
+          : effectiveOptions
+              .map((e) => DropdownMenuItem(
+                    value: e,
+                    child: Text(
+                      e,
+                      style: widget.textStyle,
+                    ),
+                  ))
+              .toList(),
       elevation: widget.elevation!.toInt(),
       onChanged: (value) {
         dropDownValue = value!;

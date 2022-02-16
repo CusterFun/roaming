@@ -1,3 +1,6 @@
+import 'package:app/app/modules/home/controllers/sql_to_code_controller.dart';
+import 'package:get/get.dart';
+
 import '../components/define_name_widget.dart';
 import '../components/field_info_widget.dart';
 import '../components/select_db_widget.dart';
@@ -11,6 +14,7 @@ class DbContainerWidget extends StatefulWidget {
 }
 
 class _DbContainerWidgetState extends State<DbContainerWidget> {
+  SqlToCodeController c = Get.put(SqlToCodeController());
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,7 +24,7 @@ class _DbContainerWidgetState extends State<DbContainerWidget> {
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // SelectDbWidget(),
+          SelectDbWidget(),
           DefineNameWidget(),
           FieldInfoWidget(),
         ],

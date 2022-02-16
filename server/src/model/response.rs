@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Debug)]
 pub struct ApiResp<T: Serialize> {
-    pub code: ResponseCode,
+    pub code: u16,
     pub data: T,
     pub msg: String,
 }
@@ -45,28 +45,28 @@ impl<T: Serialize + Default> IntoResponse for ApiResp<T> {
 }
 
 impl<T: Serialize + Default> ApiResp<T> {
-    pub fn new(code: ResponseCode, data: T, msg: String) -> ApiResp<T> {
+    pub fn new(code: u16, data: T, msg: String) -> ApiResp<T> {
         ApiResp { code, data, msg }
     }
     pub fn ok() -> ApiResp<T> {
-        ApiResp::new(ResponseCode::Success, T::default(), "操作成功".to_string())
+        ApiResp::new(ResponseCode::Success as u16, T::default(), "操作成功".to_string())
     }
     pub fn ok_with_msg(msg: String) -> ApiResp<T> {
-        ApiResp::new(ResponseCode::Success, T::default(), msg)
+        ApiResp::new(ResponseCode::Success as u16, T::default(), msg)
     }
     pub fn ok_with_data(data: T) -> ApiResp<T> {
-        ApiResp::new(ResponseCode::Success, data, "操作成功".to_string())
+        ApiResp::new(ResponseCode::Success as u16,  data, "操作成功".to_string())
     }
     pub fn ok_with_detailed(data: T, msg: String) -> ApiResp<T> {
-        ApiResp::new(ResponseCode::Success, data, msg)
+        ApiResp::new(ResponseCode::Success as u16, data, msg)
     }
     pub fn fail() -> ApiResp<T> {
-        ApiResp::new(ResponseCode::Error, T::default(), "操作失败".to_string())
+        ApiResp::new(ResponseCode::Error as u16, T::default(), "操作失败".to_string())
     }
     pub fn fail_with_msg(msg: String) -> ApiResp<T> {
-        ApiResp::new(ResponseCode::Error, T::default(), msg)
+        ApiResp::new(ResponseCode::Error as u16, T::default(), msg)
     }
     pub fn fail_with_detailed(data: T, msg: String) -> ApiResp<T> {
-        ApiResp::new(ResponseCode::Error, data, msg)
+        ApiResp::new(ResponseCode::Error as u16, data, msg)
     }
 }
