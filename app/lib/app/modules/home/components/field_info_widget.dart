@@ -1,5 +1,4 @@
 import 'package:app/flutter_flow/index.dart';
-import 'package:app/utils/string_fun.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -8,6 +7,32 @@ import '../controllers/sql_to_code_controller.dart';
 class FieldInfoWidget extends GetView<SqlToCodeController> {
   @override
   Widget build(BuildContext context) {
+    List<DataRow> dateRows = [];
+    var data = controller.columnList.value.data;
+    if (data != null) {
+      for (int i = 0; i < data.length; i++) {
+        dateRows.add(
+          DataRow(
+            cells: [
+              DataCell(Text('${data[i].columnName}')),
+              DataCell(Text('${data[i].columnComment}')),
+              DataCell(Text('${data[i].columnName}')),
+              DataCell(Text('${data[i].dataType}')),
+              DataCell(Text('${data[i].columnName}')),
+              DataCell(Text('${data[i].columnComment}')),
+              DataCell(
+                Row(
+                  children: [
+                    TextButton(onPressed: null, child: Text('编辑')),
+                    TextButton(onPressed: null, child: Text('删除')),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    }
     return Padding(
       padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
       child: Column(
@@ -69,115 +94,24 @@ class FieldInfoWidget extends GetView<SqlToCodeController> {
           ),
           Padding(
             padding: EdgeInsetsDirectional.fromSTEB(0, 16, 0, 0),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  '序列',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  'Field名',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '中文名',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  'FieldJson',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  'Field数据类型',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '数据字段长度',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '数据库字段',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '数据库字段描述',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '搜索条件',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '操作',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-              ],
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columns: [
+                  DataColumn(label: Text('Field名')),
+                  DataColumn(label: Text('中文名')),
+                  DataColumn(label: Text('FieldJson')),
+                  DataColumn(label: Text('Field数据类型')),
+                  DataColumn(label: Text('数据库字段')),
+                  DataColumn(label: Text('数据库字段描述')),
+                  DataColumn(label: Text('操作')),
+                ],
+                rows: dateRows,
+              ),
             ),
-          ),
-          Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(0, 16, 0, 0),
-            child: controller.columnList.value.data != null && controller.columnList.value.data!.isNotEmpty
-                ? Column(
-                    children: [
-                      for (var item in controller.columnList.value.data!) ...[
-                        columnInfo(context, item),
-                      ]
-                    ],
-                  )
-                : Container(),
           ),
         ],
       ),
-    );
-  }
-
-  Row columnInfo(BuildContext context, item) {
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          toUpperCase(str: item.columnName, name: 'Field名'),
-          style: FlutterFlowTheme.of(context).bodyText1,
-        ),
-        Text(
-          item.columnComment != null && item.columnComment != ''
-              ? item.columnComment!
-              : '中文名',
-          style: FlutterFlowTheme.of(context).bodyText1,
-        ),
-        Text(
-          toLowerCase(str: item.columnName, name: 'FieldJson'),
-          style: FlutterFlowTheme.of(context).bodyText1,
-        ),
-        Text(
-          item.dataType ?? 'Field数据类型',
-          style: FlutterFlowTheme.of(context).bodyText1,
-        ),
-        Text(
-          '数据字段长度',
-          style: FlutterFlowTheme.of(context).bodyText1,
-        ),
-        Text(
-          item.dataType ?? '数据库字段',
-          style: FlutterFlowTheme.of(context).bodyText1,
-        ),
-        Text(
-          item.columnComment ?? '数据库字段描述',
-          style: FlutterFlowTheme.of(context).bodyText1,
-        ),
-        // Text(
-        //   '搜索条件',
-        //   style: FlutterFlowTheme.of(context).bodyText1,
-        // ),
-        Text(
-          '操作',
-          style: FlutterFlowTheme.of(context).bodyText1,
-        ),
-      ],
     );
   }
 }
