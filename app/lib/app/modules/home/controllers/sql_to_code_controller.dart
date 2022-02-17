@@ -1,5 +1,6 @@
 import 'package:app/api.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../model/dbcolumn.dart';
@@ -14,11 +15,12 @@ class SqlToCodeController extends GetxController {
   final dbname = ''.obs; // 选择的数据库名
   final table = ''.obs; // 选择的表名
   final structName = ''.obs; // 使用此表创建时的表名
+  var defineNameKey = GlobalKey<FormState>().obs;
 
   @override
   void onInit() {
     super.onInit();
-
+    defineNameKey.value = GlobalKey<FormState>();
     getDB();
   }
 
@@ -91,12 +93,38 @@ class SqlToCodeController extends GetxController {
   }
 
   ///
-  final abbreviation = ''.obs;
-  final tableName = ''.obs;
-  final description = ''.obs;
-  final packageName = ''.obs;
-  final autoCreateApiToSql = false.obs;
-  final autoMoveFile = false.obs;
+  var abbreviation = ''.obs;
+  var tableName = ''.obs;
+  var description = ''.obs;
+  var packageName = ''.obs;
+  var autoCreateApiToSql = false.obs;
+  var autoMoveFile = false.obs;
 
   void changeTableName(val) => tableName.value = val;
+
+  /// 预览模板代码
+  void preview() async {
+    //读取当前 Form 状态
+    var form = defineNameKey.value.currentState;
+    form?.save();
+    try {
+      var res = await Dio().post(Api.GET_PREVIEW, data: {
+        "struct_name": structName.value,
+        "table_name": tableName.value,
+        "package_name": packageName.value,
+        "abbreviation": abbreviation.value,
+        "description": description.value,
+        "auto_create_api_to_sql": autoCreateApiToSql.value,
+        "auto_move_file": autoMoveFile.value,
+        "hump_package_name": packageName.value,
+        "fields": [],
+      });
+      Get.snackbar('提示', res.data['msg']);
+      if (res.data['code'] == 0) {
+        print("res.data['data']:${res.data['data'].toString()}");
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 }

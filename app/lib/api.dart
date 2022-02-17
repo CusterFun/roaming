@@ -6,4 +6,5 @@ class Api {
   static const GET_DB = BASE_URL + 'autoCode/getDB'; // 获取数据库名
   static const GET_TABLES = BASE_URL + 'autoCode/getTables'; // 获取对应数据库的表
   static const GET_COLUMNS = BASE_URL + 'autoCode/getColumn'; // 获取指定表所有字段信息
+  static const GET_PREVIEW = BASE_URL + 'autoCode/preview'; // 预览生成模板代码
 }

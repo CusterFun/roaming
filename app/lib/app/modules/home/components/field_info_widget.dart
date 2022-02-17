@@ -40,38 +40,8 @@ class FieldInfoWidget extends GetView<SqlToCodeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FFButtonWidget(
-            onPressed: () async {
-              await showDialog(
-                context: context,
-                builder: (alertDialogContext) {
-                  return AlertDialog(
-                    title: Text('预览代码'),
-                    content: controller.tableName.value != ''
-                        ? Column(
-                            children: [
-                              Text(controller.structName.value),
-                              Text(controller.abbreviation.value),
-                              Text(controller.description.value),
-                              Text(controller.packageName.value),
-                              Text(controller.autoCreateApiToSql.value
-                                  ? 'true'
-                                  : 'false'),
-                              Text(controller.autoMoveFile.value
-                                  ? 'true'
-                                  : 'false'),
-                              Text('表名: ${controller.tableName.value}'),
-                            ],
-                          )
-                        : Container(),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(alertDialogContext),
-                        child: Text('确定'),
-                      ),
-                    ],
-                  );
-                },
-              );
+            onPressed: () {
+              controller.preview();
             },
             text: '预览代码',
             options: FFButtonOptions(

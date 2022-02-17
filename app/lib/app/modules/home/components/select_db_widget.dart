@@ -101,7 +101,10 @@ class _SelectDbWidgetState extends State<SelectDbWidget> {
                 ),
               ),
               FFButtonWidget(
-                disabled: c.dbname.value == '' || c.table.value == '',
+                disabled: c.dbname.value == '' ||
+                    c.table.value == '' ||
+                    c.dbname.value == '[Option]' ||
+                    c.table.value == '[Option]',
                 onPressed: c.getColumns,
                 text: '使用此表创建',
                 options: FFButtonOptions(

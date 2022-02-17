@@ -1,7 +1,7 @@
 import 'package:app/flutter_flow/index.dart';
 import 'package:app/utils/index.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-import 'package:easy_debounce/easy_debounce.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,13 +15,12 @@ class DefineNameWidget extends StatefulWidget {
 }
 
 class _DefineNameWidgetState extends State<DefineNameWidget> {
-  final formKey = GlobalKey<FormState>();
   final SqlToCodeController controller = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: formKey,
+      key: controller.defineNameKey.value,
       autovalidateMode: AutovalidateMode.always,
       child: Container(
         width: double.infinity,
@@ -33,10 +32,10 @@ class _DefineNameWidgetState extends State<DefineNameWidget> {
             initState: (_) {},
             builder: (controller) {
               if (controller.structName.value != '') {
-                controller.abbreviation.value =
-                    toHump(controller.structName.value);
                 controller.tableName.value =
                     toSQLLine(controller.structName.value);
+                controller.abbreviation.value =
+                    toHump(controller.structName.value);
                 controller.description.value =
                     '${toHump(controller.structName.value)}表';
                 controller.packageName.value =
@@ -77,14 +76,9 @@ class _DefineNameWidgetState extends State<DefineNameWidget> {
                               child: TextFormField(
                                 initialValue: toUpperCase(
                                     str: toHump(controller.structName.value)),
-                                onChanged: (val) => EasyDebounce.debounce(
-                                  'structNameController',
-                                  Duration(milliseconds: 2000),
-                                  () => setState(() {
-                                    print('change: $val');
-                                  }),
-                                ),
-                                // controller: structNameController,
+                                onSaved: (String? val) {
+                                  controller.structName.value = val!;
+                                },
                                 obscureText: false,
                                 decoration: InputDecoration(
                                   hintText: '结构体名称',
@@ -144,14 +138,9 @@ class _DefineNameWidgetState extends State<DefineNameWidget> {
                             Expanded(
                               child: TextFormField(
                                 initialValue: controller.tableName.value,
-                                // onChanged: (val) => EasyDebounce.debounce(
-                                //     'tableNameController',
-                                //     Duration(milliseconds: 2000),
-                                //     () => setState(() =>
-                                //         controller.tableName.value = val)),
-                                onChanged: (val) => setState(
-                                    () => controller.changeTableName(val)),
-                                // controller: tableNameController,
+                                onSaved: (String? val) {
+                                  controller.tableName.value = val!;
+                                },
                                 obscureText: false,
                                 decoration: InputDecoration(
                                   hintText: '指定表名',
@@ -211,14 +200,9 @@ class _DefineNameWidgetState extends State<DefineNameWidget> {
                             Expanded(
                               child: TextFormField(
                                 initialValue: controller.abbreviation.value,
-                                onChanged: (val) => EasyDebounce.debounce(
-                                  'abbreviationController',
-                                  Duration(milliseconds: 2000),
-                                  () {
-                                    controller.abbreviation.value = val;
-                                  },
-                                ),
-                                // controller: abbreviationController,
+                                onSaved: (String? val) {
+                                  controller.abbreviation.value = val!;
+                                },
                                 obscureText: false,
                                 decoration: InputDecoration(
                                   hintText: '简称会作为入参对象名和路由group',
@@ -278,14 +262,9 @@ class _DefineNameWidgetState extends State<DefineNameWidget> {
                             Expanded(
                               child: TextFormField(
                                 initialValue: controller.description.value,
-                                onChanged: (val) => EasyDebounce.debounce(
-                                  'descriptionController',
-                                  Duration(milliseconds: 2000),
-                                  () {
-                                    controller.description.value = val;
-                                  },
-                                ),
-                                // controller: descriptionController,
+                                onSaved: (String? val) {
+                                  controller.description.value = val!;
+                                },
                                 obscureText: false,
                                 decoration: InputDecoration(
                                   hintText: '中文描述作为自动api描述',
@@ -345,14 +324,9 @@ class _DefineNameWidgetState extends State<DefineNameWidget> {
                             Expanded(
                               child: TextFormField(
                                 initialValue: controller.packageName.value,
-                                onChanged: (val) => EasyDebounce.debounce(
-                                  'packageNameController',
-                                  Duration(milliseconds: 2000),
-                                  () {
-                                    controller.packageName.value = val;
-                                  },
-                                ),
-                                // controller: packageNameController,
+                                onSaved: (String? val) {
+                                  controller.packageName.value = val!;
+                                },
                                 obscureText: false,
                                 decoration: InputDecoration(
                                   hintText:

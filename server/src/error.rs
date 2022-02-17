@@ -7,6 +7,8 @@ use thiserror::Error;
 /// 使用 thiserror 的派生宏来自定义 AppError 错误类型
 #[derive(Debug, Error)]
 pub enum AppError {
+    #[error("Internal error")]
+    Internal(String),
     #[error(transparent)]
     SqlxError(#[from] sqlx::Error),
     #[error(transparent)]

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, io};
+use std::{collections::HashMap, fs, io, path::Path};
 
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, MySqlPool};
@@ -103,6 +103,7 @@ pub async fn get_column(
 }
 
 const BASE_PATH: &str = "templates";
+const BASE_PATH2: &str = "templates\\";
 
 pub async fn preview_temp(
     _pool: &MySqlPool,
@@ -128,8 +129,11 @@ pub async fn preview_temp(
     for tpl in tpl_file_list {
         let path = path_list.get(&tpl);
         if let Some(value) = path {
-            let mut render = templates.render(value, &ctx).expect("渲染模板失败!");
-
+            dbg!(value);
+            let temp = value.split('\\').collect::<Vec<&str>>().join("/");
+            dbg!(&temp);
+            let mut render = templates.render(&temp, &ctx).expect("渲染模板文件失败");
+            // .map_err(|e| return AppError::Internal(format!("渲染模板文件失败: {}", e)))?;
             let mut language: String = "txt".to_owned();
             let split: Vec<&str> = tpl.split('.').collect();
             if split.len() > 2 && split.contains(&"tera") {
@@ -153,6 +157,7 @@ fn get_all_tpl_file(
         .collect::<Result<Vec<_>, io::Error>>()?;
 
     for file in entries.iter() {
+        dbg!(file);
         let file_name = file
             .file_name()
             .unwrap_or_default()
@@ -160,8 +165,16 @@ fn get_all_tpl_file(
             .unwrap_or_default();
 
         if file.is_dir() {
+            dbg!(Path::new(base_path)
+                .join(file_name)
+                .to_str()
+                .unwrap_or_default());
             get_all_tpl_file(
-                &(base_path.to_owned() + "/" + file_name),
+                Path::new(base_path)
+                    .join(file_name)
+                    .to_str()
+                    .unwrap_or_default(),
+                // &(base_path.to_owned() + "/" + file_name),
                 file_list,
                 path_list,
             )?;
@@ -172,7 +185,8 @@ fn get_all_tpl_file(
                 file.to_str()
                     .unwrap_or_default()
                     .to_string()
-                    .strip_prefix(format!("{}/", BASE_PATH).as_str())
+                    // .strip_prefix(format!("{}/", BASE_PATH).as_str())
+                    .strip_prefix(BASE_PATH2)
                     .unwrap_or_default()
                     .to_string(),
             );

@@ -1,4 +1,4 @@
-use std::{sync::Arc, collections::HashMap};
+use std::{collections::HashMap, sync::Arc};
 
 use axum::{
     extract::{Extension, Query},
@@ -79,8 +79,8 @@ pub struct AutoCodeField {
 pub async fn preview_temp(
     Extension(state): Extension<Arc<AppState>>,
     Json(req): Json<AutoCodeStruct>,
-) -> Json<Value> {
-    let auto_code = sys_auto_code::preview_temp(&state.pool, req).await;
-    let res = ApiResp::<HashMap<String, String>>::ok_with_data(auto_code.ok().unwrap());
-    Json(json!(res))
+) -> ApiResult<Json<Value>> {
+    let auto_code = sys_auto_code::preview_temp(&state.pool, req).await?;
+    let res = ApiResp::<HashMap<String, String>>::ok_with_data(auto_code);
+    Ok(Json(json!(res)))
 }
