@@ -66,9 +66,11 @@ class SqlToCodeController extends GetxController {
     }
   }
 
+  final columnList = ColumnsMo().obs;
+
   /// 获取指定表所有字段信息
   void getColumns() async {
-    structName.value = table.value;
+    structName.value = '';
     try {
       var res = await Dio().get(Api.GET_COLUMNS, queryParameters: {
         'db_name': dbname.value,
@@ -76,6 +78,8 @@ class SqlToCodeController extends GetxController {
       });
       Get.snackbar('提示', res.data['msg']);
       if (res.data['code'] == 0) {
+        columnList.value = ColumnsMo.fromJson(res.data);
+        structName.value = table.value;
         var data = ColumnsMo.fromJson(res.data);
         for (var i = 0; i < data.data!.length; i++) {
           print('column: ${data.data![i].toJson().toString()}');
@@ -85,4 +89,14 @@ class SqlToCodeController extends GetxController {
       Get.snackbar('提示', e.toString());
     }
   }
+
+  ///
+  final abbreviation = ''.obs;
+  final tableName = ''.obs;
+  final description = ''.obs;
+  final packageName = ''.obs;
+  final autoCreateApiToSql = false.obs;
+  final autoMoveFile = false.obs;
+
+  void changeTableName(val) => tableName.value = val;
 }

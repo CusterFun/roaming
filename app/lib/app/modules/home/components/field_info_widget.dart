@@ -1,14 +1,11 @@
 import 'package:app/flutter_flow/index.dart';
+import 'package:app/utils/string_fun.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class FieldInfoWidget extends StatefulWidget {
-  const FieldInfoWidget({Key? key}) : super(key: key);
+import '../controllers/sql_to_code_controller.dart';
 
-  @override
-  _FieldInfoWidgetState createState() => _FieldInfoWidgetState();
-}
-
-class _FieldInfoWidgetState extends State<FieldInfoWidget> {
+class FieldInfoWidget extends GetView<SqlToCodeController> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -24,11 +21,27 @@ class _FieldInfoWidgetState extends State<FieldInfoWidget> {
                 builder: (alertDialogContext) {
                   return AlertDialog(
                     title: Text('预览代码'),
-                    content: Text('code'),
+                    content: controller.tableName.value != ''
+                        ? Column(
+                            children: [
+                              Text(controller.structName.value),
+                              Text(controller.abbreviation.value),
+                              Text(controller.description.value),
+                              Text(controller.packageName.value),
+                              Text(controller.autoCreateApiToSql.value
+                                  ? 'true'
+                                  : 'false'),
+                              Text(controller.autoMoveFile.value
+                                  ? 'true'
+                                  : 'false'),
+                              Text('表名: ${controller.tableName.value}'),
+                            ],
+                          )
+                        : Container(),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(alertDialogContext),
-                        child: Text('Ok'),
+                        child: Text('确定'),
                       ),
                     ],
                   );
@@ -105,56 +118,66 @@ class _FieldInfoWidgetState extends State<FieldInfoWidget> {
           ),
           Padding(
             padding: EdgeInsetsDirectional.fromSTEB(0, 16, 0, 0),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  '序列',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  'Field名',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '中文名',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  'FieldJson',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  'Field数据类型',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '数据字段长度',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '数据库字段',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '数据库字段描述',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '搜索条件',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-                Text(
-                  '操作',
-                  style: FlutterFlowTheme.of(context).bodyText1,
-                ),
-              ],
-            ),
+            child: controller.columnList.value.data != null && controller.columnList.value.data!.isNotEmpty
+                ? Column(
+                    children: [
+                      for (var item in controller.columnList.value.data!) ...[
+                        columnInfo(context, item),
+                      ]
+                    ],
+                  )
+                : Container(),
           ),
         ],
       ),
+    );
+  }
+
+  Row columnInfo(BuildContext context, item) {
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(
+          toUpperCase(str: item.columnName, name: 'Field名'),
+          style: FlutterFlowTheme.of(context).bodyText1,
+        ),
+        Text(
+          item.columnComment != null && item.columnComment != ''
+              ? item.columnComment!
+              : '中文名',
+          style: FlutterFlowTheme.of(context).bodyText1,
+        ),
+        Text(
+          toLowerCase(str: item.columnName, name: 'FieldJson'),
+          style: FlutterFlowTheme.of(context).bodyText1,
+        ),
+        Text(
+          item.dataType ?? 'Field数据类型',
+          style: FlutterFlowTheme.of(context).bodyText1,
+        ),
+        Text(
+          '数据字段长度',
+          style: FlutterFlowTheme.of(context).bodyText1,
+        ),
+        Text(
+          item.dataType ?? '数据库字段',
+          style: FlutterFlowTheme.of(context).bodyText1,
+        ),
+        Text(
+          item.columnComment ?? '数据库字段描述',
+          style: FlutterFlowTheme.of(context).bodyText1,
+        ),
+        // Text(
+        //   '搜索条件',
+        //   style: FlutterFlowTheme.of(context).bodyText1,
+        // ),
+        Text(
+          '操作',
+          style: FlutterFlowTheme.of(context).bodyText1,
+        ),
+      ],
     );
   }
 }
