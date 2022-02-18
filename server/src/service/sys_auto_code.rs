@@ -137,7 +137,7 @@ pub async fn preview_temp(
                 .collect::<Vec<&str>>()
                 .join("/");
             dbg!(&temp);
-            let temp2 = temp.strip_prefix('/').unwrap_or_default();
+            let temp2 = temp.strip_prefix('/').unwrap_or(&temp);
             dbg!(&temp2);
             let mut render = templates.render(temp2, &ctx).expect("渲染模板文件失败");
             // .map_err(|e| return AppError::Internal(format!("渲染模板文件失败: {}", e)))?;
