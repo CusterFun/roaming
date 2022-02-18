@@ -130,9 +130,16 @@ pub async fn preview_temp(
         let path = path_list.get(&tpl);
         if let Some(value) = path {
             dbg!(value);
-            let temp = value.split('\\').collect::<Vec<&str>>().join("/");
+            let temp = value
+                .strip_prefix('\\')
+                .unwrap_or(value)
+                .split('\\')
+                .collect::<Vec<&str>>()
+                .join("/");
             dbg!(&temp);
-            let mut render = templates.render(&temp, &ctx).expect("渲染模板文件失败");
+            let temp2 = temp.strip_prefix('/').unwrap_or_default();
+            dbg!(&temp2);
+            let mut render = templates.render(temp2, &ctx).expect("渲染模板文件失败");
             // .map_err(|e| return AppError::Internal(format!("渲染模板文件失败: {}", e)))?;
             let mut language: String = "txt".to_owned();
             let split: Vec<&str> = tpl.split('.').collect();
@@ -185,8 +192,9 @@ fn get_all_tpl_file(
                 file.to_str()
                     .unwrap_or_default()
                     .to_string()
-                    .strip_prefix(format!("{}/", BASE_PATH).as_str())
+                    // .strip_prefix(format!("{}/", BASE_PATH).as_str())
                     // .strip_prefix(BASE_PATH2)
+                    .strip_prefix(BASE_PATH)
                     .unwrap_or_default()
                     .to_string(),
             );
