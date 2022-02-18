@@ -185,8 +185,8 @@ fn get_all_tpl_file(
                 file.to_str()
                     .unwrap_or_default()
                     .to_string()
-                    // .strip_prefix(format!("{}/", BASE_PATH).as_str())
-                    .strip_prefix(BASE_PATH2)
+                    .strip_prefix(format!("{}/", BASE_PATH).as_str())
+                    // .strip_prefix(BASE_PATH2)
                     .unwrap_or_default()
                     .to_string(),
             );

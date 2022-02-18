@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:app/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -103,7 +105,10 @@ class SqlToCodeController extends GetxController {
   void changeTableName(val) => tableName.value = val;
 
   /// 预览模板代码
-  void preview() async {
+  Future<bool> preview() async {
+    // 清空数据
+    codeTabs.value = [];
+    codeTmps.value = [];
     //读取当前 Form 状态
     var form = defineNameKey.value.currentState;
     form?.save();
@@ -121,10 +126,19 @@ class SqlToCodeController extends GetxController {
       });
       Get.snackbar('提示', res.data['msg']);
       if (res.data['code'] == 0) {
-        print("res.data['data']:${res.data['data'].toString()}");
+        (res.data['data'] as Map<String, dynamic>).forEach((key, value) {
+          codeTabs.add(key);
+          codeTmps.add(value);
+        });
+        return true;
       }
     } catch (e) {
       print(e);
     }
+    return false;
   }
+
+  /// 预览代码
+  final codeTabs = [].obs;
+  final codeTmps = [].obs;
 }

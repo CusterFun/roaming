@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../controllers/sql_to_code_controller.dart';
+import 'preview_dialog_widget.dart';
 
 class FieldInfoWidget extends GetView<SqlToCodeController> {
   @override
@@ -33,6 +34,7 @@ class FieldInfoWidget extends GetView<SqlToCodeController> {
         );
       }
     }
+
     return Padding(
       padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
       child: Column(
@@ -40,8 +42,11 @@ class FieldInfoWidget extends GetView<SqlToCodeController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FFButtonWidget(
-            onPressed: () {
-              controller.preview();
+            onPressed: () async {
+              if (await controller.preview()) {
+                showDialog(
+                    context: context, builder: (ctx) => _buildDialog(ctx));
+              }
             },
             text: '预览代码',
             options: FFButtonOptions(
@@ -84,4 +89,14 @@ class FieldInfoWidget extends GetView<SqlToCodeController> {
       ),
     );
   }
+
+  Widget _buildDialog(BuildContext context) => Dialog(
+        backgroundColor: Colors.white,
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+        child: Container(
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: PreviewDialog()),
+      );
 }
